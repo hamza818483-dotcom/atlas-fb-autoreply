@@ -13,3 +13,10 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Set Worker secrets
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: secret bulk secrets.json
+          preCommands: |
+            echo '{"PAGE_ACCESS_TOKEN":"${{ secrets.FB_PAGE_ACCESS_TOKEN }}","VERIFY_TOKEN":"${{ secrets.FB_VERIFY_TOKEN }}","ADMIN_SECRET":"${{ secrets.FB_ADMIN_SECRET }}"}' > secrets.json
