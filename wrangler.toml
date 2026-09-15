@@ -1,6 +1,7 @@
 name = "atlas-fb-autoreply"
 main = "src/index.js"
 compatibility_date = "2026-09-01"
+account_id = "acb7a8f8fc00546ef672527a692d89fc"
 
 [[kv_namespaces]]
 binding = "KEYWORDS"
