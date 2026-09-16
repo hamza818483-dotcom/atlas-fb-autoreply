@@ -114,29 +114,33 @@ export default {
     // POST /proxy/:commentId/:endpoint  body: { message }
     // Requires Authorization: Bearer <ADMIN_SECRET>
     if (req.method === "POST" && url.pathname.startsWith("/proxy/")) {
-      if (!checkAdmin(req, env)) {
-        return new Response("Unauthorized", { status: 401 });
-      }
-      const parts = url.pathname.split("/").filter(Boolean); // ["proxy", commentId, endpoint]
-      const commentId = parts[1];
-      const endpoint = parts[2]; // "comments" or "private_replies"
-      if (!commentId || !endpoint) {
-        return new Response("Usage: /proxy/:commentId/:endpoint", { status: 400 });
-      }
-      const { message } = await req.json();
-      if (!message) return new Response("message required", { status: 400 });
+      try {
+        if (!checkAdmin(req, env)) {
+          return new Response("Unauthorized", { status: 401 });
+        }
+        const parts = url.pathname.split("/").filter(Boolean); // ["proxy", commentId, endpoint]
+        const commentId = parts[1];
+        const endpoint = parts[2]; // "comments" or "private_replies"
+        if (!commentId || !endpoint) {
+          return new Response("Usage: /proxy/:commentId/:endpoint", { status: 400 });
+        }
+        const { message } = await req.json();
+        if (!message) return new Response("message required", { status: 400 });
 
-      const graphUrl = `${GRAPH}/${commentId}/${endpoint}`;
-      const res = await fetch(graphUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message,
-          access_token: env.PAGE_ACCESS_TOKEN,
-        }),
-      });
-      const data = await res.json();
-      return Response.json(data, { status: res.status });
+        const graphUrl = `${GRAPH}/${commentId}/${endpoint}`;
+        const res = await fetch(graphUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message,
+            access_token: env.PAGE_ACCESS_TOKEN,
+          }),
+        });
+        const data = await res.json();
+        return Response.json(data, { status: res.status });
+      } catch (e) {
+        return Response.json({ error: true, message: e.message, stack: e.stack }, { status: 500 });
+      }
     }
 
     return new Response("ATLAS FB Auto-Reply Worker", { status: 200 });
